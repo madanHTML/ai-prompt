@@ -8,19 +8,19 @@
   <style>
     :root{--bg:#0f172a;--card:#0b1220;--accent:#06b6d4;--muted:#94a3b8}
     *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,Segoe UI,Roboto,system-ui,-apple-system,Arial;background:linear-gradient(180deg,#071028 0%, #081226 100%);color:#e6eef6;min-height:100vh}
+    body{margin:0;font-family:Inter,Segoe UI,Roboto,system-ui,-apple-system,Arial;background:linear-gradient(180deg,#071028 0%, #081226 100%);color:#ebeef1;min-height:100vh}
 
     /* Sticky form at top */
-    .top-form{position:sticky;top:0;z-index:30;padding:18px;background:linear-gradient(180deg,rgba(2,6,23,0.85),rgba(2,6,23,0.6));backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,0.03)}
+    .top-form{position:sticky;top:0;z-index:30;padding:18px;background:linear-gradient(180deg,rgba(2,6,23,0.85),rgba(2,6,23,0.6));backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,0.03) }
     .container{max-width:1100px;margin:0 auto}
     h1{margin:0 0 8px 0;font-size:18px}
     .controls{display:flex;gap:12px;align-items:flex-start}
 
-    .file-input{display:flex;gap:8px;align-items:center}
+    .file-input{display:flex;gap:8px;align-items:center; }
     input[type=file]{display:block}
     textarea{width:420px;min-height:90px;resize:vertical;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:inherit}
     .btn{background:var(--accent);color:#032;border:none;padding:10px 12px;border-radius:8px;cursor:pointer}
-    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted) }
 
     /* Gallery grid */
     .gallery{padding:22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
@@ -29,11 +29,11 @@
 
     /* Prompt area: invisible by default but 3-line preview (blurred) */
     .prompt-wrap{position:relative}
-    .prompt-preview{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;max-height:3.6em;line-height:1.2em;padding:8px;border-radius:8px;background:rgba(255,255,255,0.01);color:transparent;filter:blur(4px); -webkit-text-fill-color: transparent}
+    .prompt-preview{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;max-height:3.6em;line-height:1.2em;padding:8px;border-radius:8px;background:#5c5a5a2f;color:rgb(255, 252, 246);filter:(4px)/*; -webkit-text-fill-color: transparent*/}
     .prompt-preview.revealed{color:inherit;filter:none;-webkit-text-fill-color:unset}
 
     .prompt-actions{display:flex;gap:8px;align-items:center}
-    .icon{cursor:pointer;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.01)}
+    .icon{cursor:pointer;padding:9px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:#524c4c49 ;color: #eee;}
     .meta{font-size:12px;color:var(--muted)}
 
     /* small screens adjustments */
@@ -41,9 +41,21 @@
       textarea{width:100%}
       .controls{flex-direction:column}
     }
-       /* }*/
+       
+    footer{
+display:flex;
+  justify-content:center;
+  align-items: center;
+  text-align: center;
+flex-direction:column
+
+
+    }
 footer .footer-content {
-  
+  display:flex;
+  justify-content:center;
+  align-items: center;
+  text-align: center;
   flex-wrap: nowrap;       /* horizontal row */
   overflow-x: auto;        /* horizontal scroll if needed */
   justify-content: center; /* center items */
@@ -53,7 +65,7 @@ footer .footer-content {
       left:0;
       bottom:0;
       width:100%;
-      z-index:1000;
+   
     
 }
 
@@ -113,7 +125,7 @@ footer .footer-content::-webkit-scrollbar-thumb {
 </head>
 <body>
    <div class="big-heading">AI Generated Prompt Image Uploader</div>
-  <div class="top-form">
+ <div class="top-form">
     <div class="container">
       <h1>Unlimited Image + Prompt Uploader</h1>
       <div class="controls">
@@ -122,17 +134,17 @@ footer .footer-content::-webkit-scrollbar-thumb {
             <input id="imageFiles" type="file" accept="image/*" multiple style="display:none" />
           </label>
           <button class="btn" id="dropZoneBtn">Drag & Drop Area</button>
-        </div>
+        </div> 
 
-        <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+       <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
           <textarea id="promptInput" placeholder="Yahan apna prompt likhein — kitna bhi lamba ho sakta hai (full prompt invisible by default)."></textarea>
-          <div style="display:flex;gap:8px;align-items:center;">
+          <div style="display:flex;gap:8px;align-items:center;"> 
             <button class="btn" id="addAll">Add images with this prompt</button>
-            <button class="btn secondary" id="clearAll">Clear gallery</button>
-            <div class="meta">Preview: 3 lines (blurred) — Copy icon copies the complete prompt.</div>
+            <button class="btn secondary" id="clearAll">Clear gallery</button> 
+           <div class="meta">Preview: 3 lines (blurred) — Copy icon copies the complete prompt.</div>
           </div>
         </div>
-      </div>
+      </div>-
     </div>
   </div>
 
@@ -141,19 +153,23 @@ footer .footer-content::-webkit-scrollbar-thumb {
   </main>
    <!-- Footer -->
   <footer>
-    <h2>Connect with Developer</h2>
+   <h2>Connect with Developer</h2>
     <div>
-      <a href="https://facebook.com/" target="_blank" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-      <a href="https://instagram.com/" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
-      <a href="https://twitter.com/" target="_blank" class="social-icon"><i class="fab fa-twitter"></i></a>
-      <a href="https://github.com/" target="_blank" class="social-icon"><i class="fab fa-github"></i></a>
-      <a href="https://linkedin.com/" target="_blank" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://www.facebook.com/share/1A5SGnQWXV/" target="_blank" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://www.instagram.com/madankumar9558?igsh=N24zYmF6ZDdueWFn" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
+      <a href="https://x.com/MadanKu96793514?t=njlQf_QfqVRt_Dpdksy9VA&s=09" target="_blank" class="social-icon"><i class="fab fa-twitter"></i></a>
+      <a href="https://youtube.com/@aiseekhoi?si=FXDY-UOoMnRwxEf6" target="_blank" class="social-icon"><i class="fab fa-youtube"></i></a>
+      <a href="https://www.linkedin.com/in/madan-kumar-58192530a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app/" target="_blank" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
     </div>
     <p>© 2025 All Rights Reserved | Developed by <strong>Your Name</strong></p>
   </footer>
 
 
 <script>
+    const SERVER_URL = "http://localhost:5000"; 
+// Local server ke liye. 
+// Railway/Render pe deploy karne ke baad apna backend URL dalna.
+
   // Unlimited client-side uploader (images kept in memory). For production, send to server.
   const imageFiles = document.getElementById('imageFiles');
   const promptInput = document.getElementById('promptInput');
@@ -162,7 +178,7 @@ footer .footer-content::-webkit-scrollbar-thumb {
   const clearAll = document.getElementById('clearAll');
   const dropZoneBtn = document.getElementById('dropZoneBtn');
 
-  // helper: create card
+   // helper: create card
   function createCard(imgSrc, promptText, filename){
     const card = document.createElement('div');
     card.className = 'card';
@@ -188,7 +204,7 @@ footer .footer-content::-webkit-scrollbar-thumb {
     const copyBtn = document.createElement('button');
     copyBtn.className = 'icon';
     copyBtn.title = 'Copy full prompt';
-    copyBtn.innerHTML = '📋';
+    copyBtn.innerHTML = 'copy';
     copyBtn.addEventListener('click', async ()=>{
       try{
         await navigator.clipboard.writeText(preview.dataset.full || '');
@@ -201,10 +217,10 @@ footer .footer-content::-webkit-scrollbar-thumb {
 
     const revealBtn = document.createElement('button');
     revealBtn.className = 'icon';
-    revealBtn.title = 'Reveal / Hide preview';
+    revealBtn.title = 'Reveal /  preview';
     revealBtn.innerHTML = '👁️';
     revealBtn.addEventListener('click', ()=>{
-      preview.classList.toggle('revealed');
+    preview.classList.toggle('revealed');
     });
 
     const downloadBtn = document.createElement('a');
@@ -221,7 +237,6 @@ footer .footer-content::-webkit-scrollbar-thumb {
 
     const meta = document.createElement('div');
     meta.className = 'meta';
-    meta.textContent = filename ? filename : '';
 
     card.appendChild(wrap);
     card.appendChild(meta);
@@ -229,24 +244,48 @@ footer .footer-content::-webkit-scrollbar-thumb {
     return card;
   }
 
-  // process FileList
   async function addFilesWithPrompt(files, prompt){
+  const formData = new FormData();
+  for(const f of files){
+    formData.append("images", f);
+  }
+  formData.append("prompt", prompt);
+
+  const res = await fetch(SERVER_URL + "/upload", {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await res.json();
+  if(data.success){
+    for(const file of data.files){
+      const card = createCard(SERVER_URL + file.url, prompt, file.name);
+      gallery.prepend(card);
+    }
+  } else {
+    alert("Upload failed");
+  }
+}
+
+
+  // process FileList
+ /*/ async function addFilesWithPrompt(files, prompt){
     for(const f of files){
       if(!f.type.startsWith('image/')) continue;
       const dataUrl = await fileToDataURL(f);
       const card = createCard(dataUrl, prompt, f.name);
       gallery.prepend(card); // newest first -> they appear in same place as form (top)
     }
-  }
+  }*/
 
-  function fileToDataURL(file){
+ /* function fileToDataURL(file){
     return new Promise((res, rej)=>{
       const reader = new FileReader();
       reader.onload = e => res(e.target.result);
       reader.onerror = e => rej(e);
       reader.readAsDataURL(file);
     });
-  }
+  }*/
 
   // wire events
   imageFiles.addEventListener('change', (e)=>{
@@ -261,10 +300,19 @@ footer .footer-content::-webkit-scrollbar-thumb {
     imageFiles.click();
   });
 
-  clearAll.addEventListener('click', ()=>{
+  clearAll.addEventListener('click', async ()=>{
+  if(confirm('Clear the entire gallery?')){
+    gallery.innerHTML = '';
+    // Optional: Agar backend pe delete sab chahiye to call karna hoga
+    // await fetch(SERVER_URL + "/delete-all", { method: "DELETE" });
+  }
+});
+
+
+  /*clearAll.addEventListener('click', ()=>{
     if(confirm('Clear the entire gallery?')) gallery.innerHTML = '';
   });
-
+*/
   // simple drag & drop window
   ['dragenter','dragover'].forEach(ev=>{
     window.addEventListener(ev,(e)=>{e.preventDefault();e.stopPropagation();});
@@ -294,7 +342,20 @@ footer .footer-content::-webkit-scrollbar-thumb {
       console.warn('Gallery has',count,'items — this may consume lots of memory. For production, upload to server.');
     }
   });
+
   obs.observe(gallery,{childList:true});
+
+  async function loadGallery(){
+  const res = await fetch(SERVER_URL + "/images");
+  const data = await res.json();
+  gallery.innerHTML = "";
+  for(const file of data){
+    const card = createCard(SERVER_URL + file.url, "", file.name);
+    gallery.appendChild(card);
+  }
+}
+loadGallery(); // page load par run hoga
+
 
 </script>
 </body>
