@@ -109,5 +109,4 @@ app.delete("/delete-all", (req, res) => {
 // 🔥 Start Server
 // -------------------------
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log("✅ Backend running on https://ai-prompt-production.up.railway.app/:" + PORT));
-
+app.listen(PORT, () => console.log("✅ Backend running on http://localhost:" + PORT));
