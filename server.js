@@ -1,4 +1,3 @@
-// server.js
 const express = require("express");
 const multer = require("multer");
 const cors = require("cors");
@@ -21,65 +20,83 @@ app.get("/", (req, res) => {
 });
 
 
-// -------------------------
-// 📂 Uploads Folder
-// -------------------------
 const uploadDir = path.join(__dirname, "uploads");
+const metadataFile = path.join(__dirname, "image_meta.json");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+if (!fs.existsSync(metadataFile)) fs.writeFileSync(metadataFile, "[]");
 
-// -------------------------
-// ⚡ Multer Config
-// -------------------------
+// Multer config for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  }
+  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname)
 });
 const upload = multer({ storage });
 
-// -------------------------
-// 🚀 Serve Uploaded Images
-// -------------------------
-app.use("/uploads", express.static(uploadDir));
+// Static serve uploads
+app.use("/uploads", express.static(uploadDir, {
+  setHeaders: (res) => res.setHeader("Cache-Control", "no-store")
+}));
 
-// -------------------------
-// 📤 Upload API
-// -------------------------
+// Utils for metadata storage
+function readMeta() {
+  return JSON.parse(fs.readFileSync(metadataFile, "utf-8"));
+}
+function writeMeta(data) {
+  fs.writeFileSync(metadataFile, JSON.stringify(data, null, 2));
+}
+
+// Upload with prompt
 app.post("/upload", upload.array("images"), (req, res) => {
-  const files = req.files.map(f => ({
-    url: "/uploads/" + f.filename,
-    name: f.originalname
-  }));
-  res.json({ success: true, files });
-});
-
-// -------------------------
-// 📥 Get All Images
-// -------------------------
-app.get("/images", (req, res) => {
-  const files = fs.readdirSync(uploadDir).map(f => ({
-    url: "/uploads/" + f,
-    name: f
-  }));
-  res.json(files);
-});
-
-// -------------------------
-// 🗑 Delete All Images (optional)
-// -------------------------
-app.delete("/delete-all", (req, res) => {
-  fs.readdirSync(uploadDir).forEach(f => {
-    fs.unlinkSync(path.join(uploadDir, f));
+  const prompt = req.body.prompt || "";
+  let current = readMeta();
+  const newFiles = req.files.map(f => {
+    const info = {
+      url: "/uploads/" + f.filename,
+      name: f.originalname,
+      filename: f.filename,
+      prompt
+    };
+    current.push(info);
+    return info;
   });
-  res.json({ success: true, message: "All files deleted" });
+  writeMeta(current);
+  res.json({ success: true, files: newFiles });
 });
 
-// -------------------------
-// 🔥 Start Server
-// -------------------------
+// Get gallery: all images + prompt
+app.get("/images", (req, res) => {
+  res.json(readMeta());
+});
+
+// Delete one image + prompt by filename
+app.delete("/delete/:filename", (req, res) => {
+  const fname = req.params.filename;
+  let current = readMeta();
+  const idx = current.findIndex(x => x.filename === fname);
+  if (idx === -1)
+    return res.status(404).json({ success: false, message: "Image not found" });
+  // Delete file from uploads
+  try { fs.unlinkSync(path.join(uploadDir, fname)); } catch {}
+  // Remove from metadata
+  current.splice(idx, 1);
+  writeMeta(current);
+  res.json({ success: true, message: "Image and prompt deleted" });
+});
+
+// Delete all images + prompts
+app.delete("/delete-all", (req, res) => {
+  let current = readMeta();
+  current.forEach(obj => {
+    try { fs.unlinkSync(path.join(uploadDir, obj.filename)); } catch {}
+  });
+  writeMeta([]);
+  res.json({ success: true, message: "Gallery cleared" });
+});
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log("✅ Backend running on http://localhost:" + PORT));
+app.listen(PORT, "0.0.0.0", () => console.log(`✅ Backend running on port ${PORT}`));
+
+
 
 
 
