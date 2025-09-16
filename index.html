@@ -1,4 +1,166 @@
+
 <!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prompt Image Uploader — Unlimited</title>
+  <style>
+    body{margin:0;font-family:Inter,Segoe UI,Roboto,system-ui,Arial;background:linear-gradient(180deg,#071028 0%, #081226 100%);color:#ebeef1;min-height:100vh}
+    .big-heading{text-align:center;font-size:28px;font-weight:bold;margin:16px 0;background:linear-gradient(90deg,#00d4ff,#ff00d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 12px rgba(0,212,255,0.6);}
+    .gallery{padding:22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;gap:10px}
+    .card img{width:100%;height:220px;object-fit:cover;border-radius:8px}
+    .prompt-preview{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;max-height:3.6em;line-height:1.2em;padding:8px;border-radius:8px;background:#5c5a5a2f;color:rgb(255,252,246);filter:blur(4px);}
+    .prompt-preview.revealed{color:inherit;filter:none;}
+    .prompt-actions{display:flex;gap:8px;align-items:center}
+    .icon{cursor:pointer;padding:9px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:#524c4c49 ;color: #eee;}
+    .meta{font-size:12px;color:#94a3b8}
+  </style>
+</head>
+<body>
+  <div class="big-heading">AI Prompt Image Uploader</div>
+  <div style="padding:18px;">
+    <div>
+      <label class="icon">Choose Images
+        <input id="imageFiles" type="file" accept="image/*" multiple style="display:none" />
+      </label>
+      <button class="icon" id="addAll">Drag & Drop Area</button>
+      <textarea id="promptInput" placeholder="Yahan apna prompt likhein"></textarea>
+      <button class="icon" id="uploadBtn">Upload</button>
+      <button class="icon" id="clearAll">Clear gallery</button>
+    </div>
+  </div>
+  <main>
+    <div id="gallery" class="gallery" aria-live="polite"></div>
+  </main>
+<script>
+const SERVER_URL = "http://localhost:5000";
+const imageFiles = document.getElementById('imageFiles');
+const promptInput = document.getElementById('promptInput');
+const uploadBtn = document.getElementById('uploadBtn');
+const gallery = document.getElementById('gallery');
+const clearAll = document.getElementById('clearAll');
+const addAll = document.getElementById('addAll');
+
+// Helper: create card
+function createCard(imgSrc, promptText, filename){
+  const card = document.createElement('div');
+  card.className = 'card';
+  const img = document.createElement('img');
+  img.src = imgSrc;
+  img.alt = filename || 'uploaded image';
+  card.appendChild(img);
+  const preview = document.createElement('div');
+  preview.className = 'prompt-preview';
+  preview.textContent = promptText || '';
+  preview.dataset.full = promptText || '';
+  card.appendChild(preview);
+  const actions = document.createElement('div');
+  actions.className = 'prompt-actions';
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'icon';
+  copyBtn.title = 'Copy full prompt';
+  copyBtn.innerHTML = '📋';
+  copyBtn.onclick = async () => {
+    await navigator.clipboard.writeText(preview.dataset.full || '');
+    copyBtn.innerHTML = '✅';
+    setTimeout(()=>copyBtn.innerHTML = '📋',900);
+  };
+  const revealBtn = document.createElement('button');
+  revealBtn.className = 'icon';
+  revealBtn.title = 'Reveal/preview';
+  revealBtn.innerHTML = '👁️';
+  revealBtn.onclick = () => preview.classList.toggle('revealed');
+  const downloadBtn = document.createElement('a');
+  downloadBtn.className = 'icon';
+  downloadBtn.title = 'Download image';
+  downloadBtn.innerHTML = '⬇️';
+  downloadBtn.href = imgSrc;
+  downloadBtn.download = filename || 'image';
+  actions.appendChild(copyBtn);
+  actions.appendChild(revealBtn);
+  actions.appendChild(downloadBtn);
+  card.appendChild(actions);
+  return card;
+}
+
+// Actual upload
+async function addFilesWithPrompt(files, prompt){
+  const formData = new FormData();
+  for(const f of files){ formData.append("images", f); }
+  formData.append("prompt", prompt);
+  const res = await fetch(SERVER_URL + "/upload", { method: "POST", body: formData });
+  const data = await res.json();
+  if(data.success){
+    for(const file of data.files){
+      // IMPORTANT: Query param for cache-bust!
+      const card = createCard(SERVER_URL + file.url + '?t=' + Date.now(), prompt, file.name);
+      gallery.prepend(card);
+    }
+  } else { alert("Upload failed"); }
+}
+
+// Events
+imageFiles.addEventListener('change', (e)=>{
+  const files = Array.from(e.target.files);
+  addFilesWithPrompt(files, promptInput.value || '');
+  imageFiles.value = '';
+});
+uploadBtn.addEventListener('click', ()=>{
+  imageFiles.click();
+});
+addAll.addEventListener('click', ()=>{
+  alert('Drag karke browser window mein file drop karein, prompt textarea mein likhein.');
+});
+clearAll.addEventListener('click', async ()=>{
+  if(confirm('Clear the entire gallery?')){
+    gallery.innerHTML = '';
+    await fetch(SERVER_URL + "/delete-all", { method: "DELETE" });
+  }
+});
+// Drag & drop
+['dragenter','dragover','dragleave','drop'].forEach(ev=>{
+  window.addEventListener(ev,(e)=>{e.preventDefault();e.stopPropagation();});
+});
+window.addEventListener('drop', (e)=>{
+  const items = e.dataTransfer.files;
+  if(items && items.length){
+    addFilesWithPrompt(items, promptInput.value || '');
+  }
+});
+async function loadGallery(){
+  const res = await fetch(SERVER_URL + "/images");
+  const data = await res.json();
+  gallery.innerHTML = "";
+  for(const file of data){
+    const card = createCard(SERVER_URL + file.url + '?t=' + Date.now(), "", file.name);
+    gallery.appendChild(card);
+  }
+}
+loadGallery();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<!doctype html>
 <html lang="hi">
 <head>
   <meta charset="utf-8" />
@@ -360,3 +522,4 @@ loadGallery(); // page load par run hoga
 </script>
 </body>
 </html>
+
