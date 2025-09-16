@@ -52,7 +52,6 @@ ${urls}
 </urlset>`);
 });
 
-
 const uploadDir = path.join(__dirname, "uploads");
 const metadataFile = path.join(__dirname, "image_meta.json");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
@@ -128,6 +127,7 @@ app.delete("/delete-all", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => console.log(`✅ Backend running on port ${PORT}`));
+
 
 
 
