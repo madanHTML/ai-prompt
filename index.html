@@ -166,7 +166,183 @@ footer .footer-content::-webkit-scrollbar-thumb {
 
 
 <script>
-    const SERVER_URL = "https://ai-prompt-production.up.railway.app"; 
+
+const SERVER_URL = "https://ai-prompt-production.up.railway.app"; // Backend live URL
+
+const imageFiles = document.getElementById('imageFiles');
+const promptInput = document.getElementById('promptInput');
+const addAll = document.getElementById('addAll');
+const gallery = document.getElementById('gallery');
+const clearAll = document.getElementById('clearAll');
+const dropZoneBtn = document.getElementById('dropZoneBtn');
+
+function createCard(imgSrc, promptText, filename) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  const img = document.createElement('img');
+  img.src = imgSrc;
+  img.alt = filename || 'uploaded image';
+  card.appendChild(img);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'prompt-wrap';
+  const preview = document.createElement('div');
+  preview.className = 'prompt-preview';
+  preview.textContent = promptText || '';
+  preview.dataset.full = promptText || '';
+  wrap.appendChild(preview);
+
+  const actions = document.createElement('div');
+  actions.className = 'prompt-actions';
+
+  // Copy button
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'icon';
+  copyBtn.title = 'Copy full prompt';
+  copyBtn.innerHTML = '📋';
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(preview.dataset.full || '');
+      copyBtn.innerHTML = '✅';
+      setTimeout(() => copyBtn.innerHTML = '📋', 900);
+    } catch (e) {
+      alert('Copy failed — browser may block clipboard.');
+    }
+  });
+  actions.appendChild(copyBtn);
+
+  // Reveal button
+  const revealBtn = document.createElement('button');
+  revealBtn.className = 'icon';
+  revealBtn.title = 'Reveal / preview';
+  revealBtn.innerHTML = '👁️';
+  revealBtn.addEventListener('click', () => {
+    preview.classList.toggle('revealed');
+  });
+  actions.appendChild(revealBtn);
+
+  // Download button
+  const downloadBtn = document.createElement('a');
+  downloadBtn.className = 'icon';
+  downloadBtn.title = 'Download image';
+  downloadBtn.innerHTML = '⬇️';
+  downloadBtn.href = imgSrc;
+  downloadBtn.download = filename || 'image';
+  actions.appendChild(downloadBtn);
+
+  // Delete button for single image/prompt
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'icon';
+  deleteBtn.title = 'Delete image and prompt';
+  deleteBtn.innerHTML = '🗑️';
+  deleteBtn.addEventListener('click', async () => {
+    if (confirm(`क्या इस image और prompt को delete करना चाहते हैं? (${filename})`)) {
+      const res = await fetch(SERVER_URL + "/delete/" + filename, { method: "DELETE" });
+      const result = await res.json();
+      if (result.success) {
+        card.remove();
+      } else {
+        alert("Delete failed");
+      }
+    }
+  });
+  actions.appendChild(deleteBtn);
+
+  wrap.appendChild(actions);
+
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  meta.textContent = promptText;
+  card.appendChild(wrap);
+  card.appendChild(meta);
+
+  return card;
+}
+
+// Upload images + prompt
+async function addFilesWithPrompt(files, prompt) {
+  const formData = new FormData();
+  for (const f of files) {
+    formData.append("images", f);
+  }
+  formData.append("prompt", prompt);
+  const res = await fetch(SERVER_URL + "/upload", {
+    method: "POST",
+    body: formData
+  });
+  const data = await res.json();
+  if (data.success) {
+    for (const file of data.files) {
+      const card = createCard(
+        SERVER_URL + file.url,
+        file.prompt,
+        file.filename
+      );
+      gallery.prepend(card);
+    }
+  } else {
+    alert("Upload failed");
+  }
+}
+
+// Gallery loader: fetch all image-prompt pairs
+async function loadGallery() {
+  const res = await fetch(SERVER_URL + "/images");
+  const data = await res.json();
+  gallery.innerHTML = "";
+  for (const obj of data) {
+    // obj has: url, name, filename, prompt
+    const card = createCard(
+      SERVER_URL + obj.url,
+      obj.prompt || "",
+      obj.filename
+    );
+    gallery.appendChild(card);
+  }
+}
+
+imageFiles.addEventListener('change', (e) => {
+  const files = Array.from(e.target.files);
+  addFilesWithPrompt(files, promptInput.value || '');
+  imageFiles.value = '';
+});
+addAll.addEventListener('click', () => {
+  imageFiles.click();
+});
+clearAll.addEventListener('click', async () => {
+  if (confirm('सभी images + prompt clear कर दें?')) {
+    const res = await fetch(SERVER_URL + "/delete-all", { method: "DELETE" });
+    const result = await res.json();
+    if (result.success) {
+      gallery.innerHTML = '';
+    } else {
+      alert("Failed to clear gallery");
+    }
+  }
+});
+
+['dragenter', 'dragover'].forEach(ev => {
+  window.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); });
+});
+['dragleave', 'drop'].forEach(ev => {
+  window.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); });
+});
+window.addEventListener('drop', (e) => {
+  const items = e.dataTransfer.files;
+  if (items && items.length) {
+    addFilesWithPrompt(items, promptInput.value || '');
+  }
+});
+dropZoneBtn.addEventListener('click', () => {
+  alert('फाइल को विंडो पर ड्रैग करके drop कर दें — prompt के साथ image सेव होगी।');
+});
+
+// On page load
+loadGallery();
+
+
+  
+  /*  const SERVER_URL = "https://ai-prompt-production.up.railway.app"; 
 // Local server ke liye. 
 // Railway/Render pe deploy karne ke baad apna backend URL dalna.
 
@@ -269,7 +445,7 @@ footer .footer-content::-webkit-scrollbar-thumb {
 
 
   // process FileList
- /*/ async function addFilesWithPrompt(files, prompt){
+ /*//* async function addFilesWithPrompt(files, prompt){
     for(const f of files){
       if(!f.type.startsWith('image/')) continue;
       const dataUrl = await fileToDataURL(f);
@@ -288,7 +464,7 @@ footer .footer-content::-webkit-scrollbar-thumb {
   }*/
 
   // wire events
-  imageFiles.addEventListener('change', (e)=>{
+/*  imageFiles.addEventListener('change', (e)=>{
     // if user chooses files directly, add them with current prompt
     const files = Array.from(e.target.files);
     addFilesWithPrompt(files, promptInput.value || '');
@@ -314,7 +490,7 @@ footer .footer-content::-webkit-scrollbar-thumb {
   });
 */
   // simple drag & drop window
-  ['dragenter','dragover'].forEach(ev=>{
+/*  ['dragenter','dragover'].forEach(ev=>{
     window.addEventListener(ev,(e)=>{e.preventDefault();e.stopPropagation();});
   });
   ['dragleave','drop'].forEach(ev=>{
@@ -354,12 +530,13 @@ footer .footer-content::-webkit-scrollbar-thumb {
     gallery.appendChild(card);
   }
 }
-loadGallery(); // page load par run hoga
+loadGallery(); // page load par run hoga/*
 
 
 </script>
 </body>
 </html>
+
 
 
 
