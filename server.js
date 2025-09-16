@@ -124,8 +124,8 @@ app.get("/", (req, res) => {
 });
 
 
-/*// ✅ robots.txt serve करो
-app.get("/robots.txt", (req, res) => {
+/*/*// ✅ robots.txt serve करो
+/*app.get("/robots.txt", (req, res) => {
   res.type("text/plain");
   res.send(`User-agent: *
 Disallow:
@@ -160,7 +160,7 @@ ${urls}
 // -------------------------
 // 📂 Uploads Folder
 // -------------------------
-const uploadDir = path.join(__dirname, "uploads");
+/*const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 
 // -------------------------
@@ -216,6 +216,7 @@ app.delete("/delete-all", (req, res) => {
 // -------------------------
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log("✅ Backend running on https://ai-prompt-production.up.railway.app/" + PORT));
+
 
 
 
