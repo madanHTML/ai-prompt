@@ -157,8 +157,8 @@ footer .footer-content::-webkit-scrollbar-thumb {
        <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
           <textarea id="promptInput" placeholder="Yahan apna prompt likhein — kitna bhi lamba ho sakta hai (full prompt invisible by default)."></textarea>
           <div style="display:flex;gap:8px;align-items:center;"> 
-            <button class="btn" id="addAll">Add images with this prompt</button>
-            <button class="btn secondary" id="clearAll">Clear gallery</button> 
+            <button class="btn" id="addAll" style="display: none;>Add images with this prompt</button>
+            <button class="btn secondary" id="clearAll" style="display: none;>Clear gallery</button>
            <div class="meta">Preview: 3 lines (blurred) — Copy icon copies the complete prompt.</div>
           </div>
         </div>
@@ -367,6 +367,7 @@ loadGallery();
 </script>
 </body>
 </html>
+
 
 
 
