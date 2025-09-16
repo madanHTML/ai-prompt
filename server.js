@@ -29,29 +29,6 @@ Sitemap: https://ai-prompt-production.up.railway.app/sitemap.xml
 `);
 });
 
-// ✅ Dynamic sitemap.xml serve करो
-app.get("/sitemap.xml", (req, res) => {
-  res.type("application/xml");
-
-  const baseUrl = "https://ai-prompt-production.up.railway.app";
-
-  const urls = siteRoutes
-    .map(
-      (route) => `
-  <url>
-    <loc>${baseUrl}${route.loc}</loc>
-    <changefreq>${route.changefreq}</changefreq>
-    <priority>${route.priority}</priority>
-  </url>`
-    )
-    .join("");
-
-  res.send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls}
-</urlset>`);
-});
-
 const uploadDir = path.join(__dirname, "uploads");
 const metadataFile = path.join(__dirname, "image_meta.json");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
@@ -127,6 +104,7 @@ app.delete("/delete-all", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => console.log(`✅ Backend running on port ${PORT}`));
+
 
 
 
