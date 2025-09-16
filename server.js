@@ -24,11 +24,9 @@ app.get("/robots.txt", (req, res) => {
   res.type("text/plain");
   res.send(`User-agent: *
 Disallow:
-
 Sitemap: https://ai-prompt-production.up.railway.app/sitemap.xml
 `);
 });
-
 const uploadDir = path.join(__dirname, "uploads");
 const metadataFile = path.join(__dirname, "image_meta.json");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
@@ -104,6 +102,7 @@ app.delete("/delete-all", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => console.log(`✅ Backend running on port ${PORT}`));
+
 
 
 
