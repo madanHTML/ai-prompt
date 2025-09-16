@@ -252,6 +252,9 @@ function createCard(imgSrc, promptText, filename) {
   const deleteBtn = document.createElement('button');
   deleteBtn.className = 'icon';
   deleteBtn.title = 'Delete image and prompt';
+  
+  deleteBtn.style.display = 'none';
+
   deleteBtn.innerHTML = '🗑️';
   deleteBtn.addEventListener('click', async () => {
     if (confirm(`क्या इस image और prompt को delete करना चाहते हैं? (${filename})`)) {
@@ -328,6 +331,8 @@ addAll.addEventListener('click', () => {
   imageFiles.click();
 });
 clearAll.addEventListener('click', async () => {
+  deleteBtn.style.display = 'none';
+
   if (confirm('सभी images + prompt clear कर दें?')) {
     const res = await fetch(SERVER_URL + "/delete-all", { method: "DELETE" });
     const result = await res.json();
@@ -362,6 +367,7 @@ loadGallery();
 </script>
 </body>
 </html>
+
 
 
 
