@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /search
+Allow: /
+Sitemap: https://ai-prompt-production.up.railway.app//sitemap.xml
